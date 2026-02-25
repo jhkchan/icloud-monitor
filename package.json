@@ -1,25 +1,45 @@
 {
   "name": "icloud-monitor",
   "version": "1.0.0",
-  "description": "",
+  "description": "Terminal-based monitoring tool for macOS iCloud Drive",
   "main": "dist/cli.js",
   "bin": {
     "icloud-monitor": "dist/cli.js"
   },
+  "files": [
+    "dist",
+    "src",
+    "scripts",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "dev": "tsx src/cli.tsx",
     "build": "tsc",
     "bundle": "node scripts/bundle.mjs",
+    "prepublishOnly": "npm run build",
     "start": "node dist/cli.js"
   },
   "keywords": [
     "icloud",
     "monitor",
     "tui",
-    "macos"
+    "macos",
+    "terminal",
+    "ink"
   ],
-  "author": "",
+  "author": "Jacky Chan",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jhkchan/icloud-monitor.git"
+  },
+  "os": [
+    "darwin"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "type": "module",
   "dependencies": {
     "ink": "^6.8.0",
