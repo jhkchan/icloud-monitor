@@ -17,18 +17,34 @@ This tool parses `brctl` and `ps` output into a usable dashboard.
 
 ## Install
 
+### Homebrew
+
 ```bash
-# From source
-git clone <repo-url>
+brew install jhkchan/icloud-monitor/icloud-monitor
+```
+
+### npm
+
+```bash
+npm install -g icloud-monitor
+```
+
+### GitHub Release
+
+Download the single-file bundle from the [latest release](https://github.com/jhkchan/icloud-monitor/releases/latest):
+
+```bash
+curl -LO https://github.com/jhkchan/icloud-monitor/releases/latest/download/icloud-monitor.mjs
+node icloud-monitor.mjs
+```
+
+### From source
+
+```bash
+git clone https://github.com/jhkchan/icloud-monitor.git
 cd icloud-monitor
 npm install
-
-# Run in development
-npx tsx src/cli.tsx
-
-# Build
 npm run build
-npm run bundle
 ```
 
 Requires Node.js 18+ and macOS (uses `brctl`, `osascript`).
