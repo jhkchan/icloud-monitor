@@ -45,7 +45,7 @@ type Action =
   | { type: "SET_SYNC_STATUS"; payload: SyncStatus }
   | { type: "SET_QUOTA"; payload: QuotaInfo }
   | { type: "SET_SYSTEM_INFO"; payload: SystemInfo }
-  | { type: "ADD_LOG_EVENT"; payload: LogEvent }
+  | { type: "ADD_LOG_EVENTS_BATCH"; payload: LogEvent[] }
   | { type: "SET_LOG_STATS"; payload: LogStats }
   | { type: "SET_INITIAL_SCAN_COMPLETE" }
   | { type: "SET_POLL_INTERVAL"; payload: number }
@@ -77,10 +77,10 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, quota: action.payload };
     case "SET_SYSTEM_INFO":
       return { ...state, systemInfo: action.payload };
-    case "ADD_LOG_EVENT":
+    case "ADD_LOG_EVENTS_BATCH":
       return {
         ...state,
-        logEvents: [...state.logEvents.slice(-999), action.payload],
+        logEvents: [...state.logEvents, ...action.payload].slice(-1000),
       };
     case "SET_LOG_STATS":
       return { ...state, logStats: action.payload };
@@ -138,7 +138,7 @@ export function StateProvider({ children }: StateProviderProps): React.ReactElem
     });
 
     const logStreamer = new LogStreamer(
-      (event) => dispatch({ type: "ADD_LOG_EVENT", payload: event }),
+      (events) => dispatch({ type: "ADD_LOG_EVENTS_BATCH", payload: events }),
       (stats) => dispatch({ type: "SET_LOG_STATS", payload: stats }),
     );
 

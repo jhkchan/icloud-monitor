@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Text, Static, useInput, useStdin, useStdout } from "ink";
+import { Box, Text, useInput, useStdin, useStdout } from "ink";
 import { useAppState } from "../state.js";
 import { formatDuration } from "../utils/format.js";
 import type { LogEvent } from "../collectors/LogStreamer.js";
@@ -83,14 +83,8 @@ export function LogView({ onBack }: Props): React.ReactElement {
       </Box>
       <Text>{"─".repeat(separatorWidth)}</Text>
 
-      <Static items={visible.slice(0, -5)}>
-        {(event: LogEvent, index: number) => (
-          <LogEntry key={`${event.timestamp}-${index}`} event={event} />
-        )}
-      </Static>
-
-      {visible.slice(-5).map((event, i) => (
-        <LogEntry key={`live-${i}`} event={event} />
+      {visible.map((event, i) => (
+        <LogEntry key={`log-${i}`} event={event} />
       ))}
 
       <Text>{"─".repeat(separatorWidth)}</Text>

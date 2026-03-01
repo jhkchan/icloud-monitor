@@ -18,26 +18,25 @@ export interface LogStats {
 }
 
 const WINDOW_SIZE_MS = 60_000; // 1 minute rolling window
+const FLUSH_INTERVAL_MS = 2_000;
+const FLUSH_BUFFER_SIZE = 100;
 
 export class LogStreamer {
   private spawn: SpawnResult | null = null;
-  private _events: LogEvent[] = [];
   private _recentEvents: LogEvent[] = [];
+  private _buffer: LogEvent[] = [];
+  private _flushTimer: ReturnType<typeof setTimeout> | null = null;
   private restartTimer: ReturnType<typeof setTimeout> | null = null;
   private running = false;
-  private onEvent: ((event: LogEvent) => void) | null = null;
+  private onEvent: ((events: LogEvent[]) => void) | null = null;
   private onStats: ((stats: LogStats) => void) | null = null;
 
   constructor(
-    onEvent?: (event: LogEvent) => void,
+    onEvent?: (events: LogEvent[]) => void,
     onStats?: (stats: LogStats) => void,
   ) {
     this.onEvent = onEvent ?? null;
     this.onStats = onStats ?? null;
-  }
-
-  get events(): LogEvent[] {
-    return this._events;
   }
 
   get stats(): LogStats {
@@ -51,6 +50,11 @@ export class LogStreamer {
 
   stop(): void {
     this.running = false;
+    this.flush();
+    if (this._flushTimer) {
+      clearTimeout(this._flushTimer);
+      this._flushTimer = null;
+    }
     if (this.restartTimer) {
       clearTimeout(this.restartTimer);
       this.restartTimer = null;
@@ -59,6 +63,22 @@ export class LogStreamer {
       this.spawn.kill();
       this.spawn = null;
     }
+  }
+
+  private flush(): void {
+    if (this._buffer.length === 0) return;
+    const batch = this._buffer;
+    this._buffer = [];
+    this.onEvent?.(batch);
+    this.onStats?.(this.computeStats());
+  }
+
+  private scheduleFlush(): void {
+    if (this._flushTimer) return;
+    this._flushTimer = setTimeout(() => {
+      this._flushTimer = null;
+      this.flush();
+    }, FLUSH_INTERVAL_MS);
   }
 
   private spawnProcess(): void {
@@ -70,11 +90,14 @@ export class LogStreamer {
       const line = stripAnsi(rawLine);
       const event = this.parseLine(line);
       if (event) {
-        this._events.push(event);
         this._recentEvents.push(event);
         this.pruneWindow();
-        this.onEvent?.(event);
-        this.onStats?.(this.computeStats());
+        this._buffer.push(event);
+        if (this._buffer.length >= FLUSH_BUFFER_SIZE) {
+          this.flush();
+        } else {
+          this.scheduleFlush();
+        }
       }
     });
 

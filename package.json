@@ -1,6 +1,6 @@
 {
   "name": "icloud-monitor",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Terminal-based monitoring tool for macOS iCloud Drive",
   "main": "dist/cli.js",
   "bin": {
